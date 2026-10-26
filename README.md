@@ -8,39 +8,33 @@ cd dotfiles
 ./install.sh
 ```
 
-The installer:
-- Moves the repo to `~/.dotfiles`
-- Detects bash/zsh and symlinks `.bashrc`/`.zshrc` (backs up existing files to `.old`)
-- Detects package manager (apt, dnf, pacman)
-- Offers to install `bash-completion` and `zsh-autosuggestions`
-
+Moves repo to `~/.dotfiles`, detects bash/zsh, symlinks rc files (backs up existing to `.old`),
+detects package manager (apt/dnf/pacman), offers to install bash-completion and zsh-autosuggestions.
 Safe to run multiple times.
 
 ## Structure
 
 ```
 ~/.dotfiles/
-    init.sh              # entry point — sources everything below
-    install.sh           # installer
+    init.sh           # sources everything below
+    install.sh
     shell/
-        bashrc           # symlinked to ~/.bashrc
-        zshrc            # symlinked to ~/.zshrc
-        options.sh       # history, shell options
-        prompt.sh        # colored prompt with git branch + venv
-        completion.sh    # tab completion (bash + zsh)
-        editor.sh        # EDITOR: nvim -> vim -> vi
-        path.sh          # PATH additions
-        plugins.sh       # zsh-autosuggestions
+        bashrc        # -> ~/.bashrc
+        zshrc         # -> ~/.zshrc
+        options.sh    # history, shell options
+        prompt.sh     # colored prompt: git branch + venv + path truncation
+        completion.sh # tab completion
+        editor.sh     # EDITOR: nvim -> vim -> vi
+        path.sh       # PATH additions
+        plugins.sh    # zsh-autosuggestions
     aliases/
-        general.sh       # navigation, git, ls, grep
+        general.sh    # navigation, git, ls, grep
     functions/
-        utility.sh       # shell functions
-    local.sh             # machine-specific config (gitignored)
+        utility.sh
+    local.d/          # machine-specific (gitignored)
 ```
 
-## Machine-specific config
+## local.d
 
-Create `~/.dotfiles/local.sh` for things that shouldn't be in the repo:
-SSH keys, pyenv, tool-specific evals, custom PATHs, etc.
-
-This file is sourced by `init.sh` but ignored by git.
+Put `.sh` files in `~/.dotfiles/local.d/` for machine-specific config (SSH keys, pyenv, etc.).
+Sourced automatically, gitignored. Can be its own private repo.
