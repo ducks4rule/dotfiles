@@ -9,11 +9,16 @@ elif [ -n "$ZSH_VERSION" ]; then
     _PS_OPEN='%{' _PS_CLOSE='%}'
 fi
 
-_C_RESET="${_PS_OPEN}\033[0m${_PS_CLOSE}"
-_C_GREEN="${_PS_OPEN}\033[0;32m${_PS_CLOSE}"
-_C_RED="${_PS_OPEN}\033[0;31m${_PS_CLOSE}"
-_C_CYAN="${_PS_OPEN}\033[0;36m${_PS_CLOSE}"
-_C_BLUE="${_PS_OPEN}\033[0;34m${_PS_CLOSE}"
+_C_RESET="${_PS_OPEN}"$'\e[0m'"${_PS_CLOSE}"
+_C_GREEN="${_PS_OPEN}"$'\e[0;32m'"${_PS_CLOSE}"
+_C_RED="${_PS_OPEN}"$'\e[0;31m'"${_PS_CLOSE}"
+_C_CYAN="${_PS_OPEN}"$'\e[0;36m'"${_PS_CLOSE}"
+_C_BLUE="${_PS_OPEN}"$'\e[0;34m'"${_PS_CLOSE}"
+
+_short_hostname() {
+    local h="${HOSTNAME:-$(uname -n)}"
+    printf '%s' "${h%%.*}"
+}
 
 _prompt_venv() {
     [ -n "$VIRTUAL_ENV" ] && printf '(%s) ' "$(basename "$VIRTUAL_ENV")"
@@ -25,6 +30,8 @@ _prompt_git() {
     [ "$branch" = "HEAD" ] && branch="$(git rev-parse --short HEAD 2>/dev/null)"
     printf ' (%s)' "$branch"
 }
+
+_abbrev() { if [ "${1:0:1}" = "." ]; then printf '%s' "${1:0:2}"; else printf '%s' "${1:0:1}"; fi; }
 
 _prompt_path() {
     local raw_path="${PWD/#$HOME/~}"
@@ -52,7 +59,7 @@ _prompt_path() {
         elif [ "$p" = "~" ] || [ "$p" = "" ]; then
             abbreviated="${abbreviated}${p}/"
         else
-            abbreviated="${abbreviated}${p:0:1}/"
+            abbreviated="${abbreviated}$(_abbrev "$p")/"
         fi
     done
 
@@ -61,7 +68,7 @@ _prompt_path() {
 
     local venv_text="$(_prompt_venv)"
     local git_text="$(_prompt_git)"
-    local user_host="$(whoami)@$(hostname -s)"
+    local user_host="$(whoami)@$(_short_hostname)"
     local fixed_len=$(( ${#venv_text} + ${#user_host} + ${#git_text} + 3 ))
     local avail=$(( PROMPT_MAX_LEN - fixed_len ))
 
@@ -78,7 +85,7 @@ _prompt_path() {
         if [ "$p" = "~" ] || [ "$p" = "" ]; then
             prefix="${prefix}${p}/"
         else
-            prefix="${prefix}${p:0:1}/"
+            prefix="${prefix}$(_abbrev "$p")/"
         fi
     done
 
@@ -94,12 +101,12 @@ _prompt_path() {
     if [ "$head" = "~" ] || [ "$head" = "" ]; then
         prefix="${head}/"
     else
-        prefix="${head:0:1}/"
+        prefix="$(_abbrev "$head")/"
     fi
     if [ "$count" -gt 3 ]; then
         local second="${parts[1]}"
         [ -n "$ZSH_VERSION" ] && second="${parts[2]}"
-        prefix="${prefix}${second:0:1}/.../"
+        prefix="${prefix}$(_abbrev "$second")/.../"
     else
         prefix="${prefix}.../"
     fi
@@ -121,15 +128,15 @@ _prompt_build() {
     local venv="$(_prompt_venv)"
     local git_info="$(_prompt_git)"
     local path_str="$(_prompt_path)"
-    local symbol="$" user_host="${_C_GREEN}$(whoami)@$(hostname -s)${_C_RESET}"
+    local symbol="$" user_host="${_C_GREEN}$(whoami)@$(_short_hostname)${_C_RESET}"
 
     if [ "$(id -u)" -eq 0 ]; then
-        user_host="${_C_RED}$(whoami)@$(hostname -s)${_C_RESET}"
+        user_host="${_C_RED}$(whoami)@$(_short_hostname)${_C_RESET}"
         symbol="#"
     fi
 
     local colored_git=""
-    [ -n "$git_info" ] && colored_git=" ${_C_BLUE}${git_info}${_C_RESET}"
+    [ -n "$git_info" ] && colored_git="${_C_BLUE}${git_info}${_C_RESET}"
 
     printf '%s%s:%s%s%s %s ' "$venv" "$user_host" "${_C_CYAN}${path_str}${_C_RESET}" "$colored_git" "" "$symbol"
 }
@@ -137,5 +144,7 @@ _prompt_build() {
 if [ -n "$BASH_VERSION" ]; then
     PROMPT_COMMAND='PS1="$(_prompt_build)"'
 elif [ -n "$ZSH_VERSION" ]; then
-    precmd() { PS1="$(_prompt_build)"; }
+    autoload -Uz add-zsh-hook
+    _prompt_precmd() { PS1="$(_prompt_build)"; }
+    add-zsh-hook precmd _prompt_precmd
 fi

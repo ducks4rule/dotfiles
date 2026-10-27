@@ -58,6 +58,10 @@ command -v bash >/dev/null 2>&1 && link_file "$DOTFILES_TARGET/shell/bashrc" "$H
 command -v zsh >/dev/null 2>&1 && link_file "$DOTFILES_TARGET/shell/zshrc" "$HOME/.zshrc"
 
 if [ -n "$PKG_MANAGER" ]; then
+    if ! command -v keychain >/dev/null 2>&1; then
+        read -r -p "Install keychain (ssh-agent manager)? [y/N] " reply
+        [ "$reply" = "y" ] || [ "$reply" = "Y" ] && pkg_install keychain "$PKG_MANAGER"
+    fi
     if command -v bash >/dev/null 2>&1; then
         if ! [ -f /usr/share/bash-completion/bash_completion ] && ! [ -f /etc/bash_completion ]; then
             read -r -p "Install bash-completion? [y/N] " reply
