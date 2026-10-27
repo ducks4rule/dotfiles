@@ -12,6 +12,14 @@ Moves repo to `~/.dotfiles`, detects bash/zsh, symlinks rc files (backs up exist
 detects package manager (apt/dnf/pacman), offers to install bash-completion and zsh-autosuggestions.
 Safe to run multiple times.
 
+## Uninstall
+
+```bash
+~/.dotfiles/uninstall.sh
+```
+
+Removes symlinks and restores `.old` backups. Does not delete `~/.dotfiles`.
+
 ## Structure
 
 ```
