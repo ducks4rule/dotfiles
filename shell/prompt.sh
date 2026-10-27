@@ -34,7 +34,7 @@ _prompt_git() {
 _abbrev() { if [ "${1:0:1}" = "." ]; then printf '%s' "${1:0:2}"; else printf '%s' "${1:0:1}"; fi; }
 
 _prompt_path() {
-    local raw_path="${PWD/#$HOME/\~}"
+    local raw_path="${PWD/#$HOME/~}"
 
     local parts=()
     if [ -n "$ZSH_VERSION" ]; then
@@ -125,20 +125,25 @@ _prompt_path() {
 }
 
 _prompt_build() {
+    local c_user="${_C_GREEN}" c_path="${_C_CYAN}" c_git="${_C_BLUE}"
+    [ -n "$DOTFILES_PROMPT_USER" ] && c_user="${_PS_OPEN}"$'\e[0;'"${DOTFILES_PROMPT_USER}m${_PS_CLOSE}"
+    [ -n "$DOTFILES_PROMPT_PATH" ] && c_path="${_PS_OPEN}"$'\e[0;'"${DOTFILES_PROMPT_PATH}m${_PS_CLOSE}"
+    [ -n "$DOTFILES_PROMPT_GIT" ] && c_git="${_PS_OPEN}"$'\e[0;'"${DOTFILES_PROMPT_GIT}m${_PS_CLOSE}"
+
     local venv="$(_prompt_venv)"
     local git_info="$(_prompt_git)"
     local path_str="$(_prompt_path)"
-    local symbol="$" user_host="${_C_GREEN}$(whoami)@$(_short_hostname)${_C_RESET}"
+    local symbol="$" user_host="${c_user}$(whoami)${_C_RESET}@${c_user}$(_short_hostname)${_C_RESET}"
 
     if [ "$(id -u)" -eq 0 ]; then
-        user_host="${_C_RED}$(whoami)@$(_short_hostname)${_C_RESET}"
+        user_host="${_C_RED}$(whoami)${_C_RESET}@${_C_RED}$(_short_hostname)${_C_RESET}"
         symbol="#"
     fi
 
     local colored_git=""
-    [ -n "$git_info" ] && colored_git="${_C_BLUE}${git_info}${_C_RESET}"
+    [ -n "$git_info" ] && colored_git="${c_git}${git_info}${_C_RESET}"
 
-    printf '%s%s:%s%s%s %s ' "$venv" "$user_host" "${_C_CYAN}${path_str}${_C_RESET}" "$colored_git" "" "$symbol"
+    printf '%s%s:%s%s %s ' "$venv" "$user_host" "${c_path}${path_str}${_C_RESET}" "$colored_git" "$symbol"
 }
 
 if [ -n "$BASH_VERSION" ]; then
