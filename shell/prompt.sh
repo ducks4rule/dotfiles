@@ -21,7 +21,11 @@ _short_hostname() {
 }
 
 _prompt_venv() {
-    [ -n "$VIRTUAL_ENV" ] && printf '(%s) ' "$(basename "$VIRTUAL_ENV")"
+    if [ -n "$VIRTUAL_ENV" ]; then
+        printf '(%s) ' "$(basename "$VIRTUAL_ENV")"
+    elif [ -n "$CONDA_DEFAULT_ENV" ] && [ "$CONDA_DEFAULT_ENV" != "base" ]; then
+        printf '(%s) ' "$CONDA_DEFAULT_ENV"
+    fi
 }
 
 _prompt_git() {
