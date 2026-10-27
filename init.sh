@@ -10,8 +10,8 @@ _source_dir() {
     fi
 }
 
+_source_dir "$DOTFILES_DIR/local.d"
+
 _source_dir "$DOTFILES_DIR/shell"
 _source_dir "$DOTFILES_DIR/aliases"
 _source_dir "$DOTFILES_DIR/functions"
-
-_source_dir "$DOTFILES_DIR/local.d"

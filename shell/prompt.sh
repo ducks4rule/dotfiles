@@ -34,7 +34,7 @@ _prompt_git() {
 _abbrev() { if [ "${1:0:1}" = "." ]; then printf '%s' "${1:0:2}"; else printf '%s' "${1:0:1}"; fi; }
 
 _prompt_path() {
-    local raw_path="${PWD/#$HOME/~}"
+    local raw_path="${PWD/#$HOME/\~}"
 
     local parts=()
     if [ -n "$ZSH_VERSION" ]; then
