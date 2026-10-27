@@ -1,1 +1,2 @@
+[[ $- != *i* ]] && return
 source "$HOME/.dotfiles/init.sh"
